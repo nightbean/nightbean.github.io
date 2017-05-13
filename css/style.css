@@ -701,9 +701,7 @@ article footer .addthis iframe {
 }
 figure.highlight {
   background: #eee;
-  border: 1px solid #ddd;
   margin-top: 15px;
-  padding: 7px 15px;
   border-radius: 2px;
   text-shadow: 0 0 1px #fff;
   line-height: 1.6;
@@ -729,6 +727,9 @@ figure.highlight table {
   margin-top: 0;
   border-spacing: 0;
 }
+figure.highlight table pre {
+  background: transparent;
+}
 figure.highlight .gutter {
   color: #999;
   padding-right: 15px;
@@ -739,6 +740,7 @@ figure.highlight .code {
   padding-left: 15px;
   border-left: 1px solid #fff;
   color: #666;
+  width: 100%;
 }
 figure.highlight .line {
   height: 20px;
