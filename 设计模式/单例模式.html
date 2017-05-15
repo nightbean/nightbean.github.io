@@ -1,0 +1,182 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>单例模式 | Li Xiang</title>
+  <meta name="author" content="Li Xiang">
+  
+  <meta name="description" content="单例模式是一种常用的模式，有一些对象我们往往只需要一个，比如线程池，全局缓存，浏览器中的dom对象等。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="单例模式"/>
+  <meta property="og:site_name" content="Li Xiang"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Li Xiang" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Li Xiang</a></h1>
+  <h2><a href="/">一个爱幻想的小子</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2017-05-13T15:05:45.000Z"><a href="/设计模式/单例模式.html">2017-05-13</a></time>
+      
+      
+  
+    <h1 class="title">单例模式</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>单例模式是一种常用的模式，有一些对象我们往往只需要一个，比如线程池，全局缓存，浏览器中的dom对象等。<br><a id="more"></a></p>
+<h2 id="定义：确保只有一个实例，并提供全局访问"><a href="#定义：确保只有一个实例，并提供全局访问" class="headerlink" title="定义：确保只有一个实例，并提供全局访问"></a>定义：确保只有一个实例，并提供全局访问</h2><p>全局变量不是单例模式，但是在Javascript开发中，我们经常会把全局变量当成单例来使用。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">var a=&#123;&#125;;</div></pre></td></tr></table></figure>
+<p>当用这种方式创建对象时，对象a确实是独一无二的，但是全局变量存在很多问题，它很容易造成命名空间污染。<br>作为开发者，我们有必要尽量减少全局变量的使用，以下几种方式可以相对降低全局变量带来的命名污染。</p>
+<p>1.使用命名空间</p>
+<p>最简单的方法依然是使用对象字面量的方式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> namespace1=&#123;</div><div class="line">    <span class="attr">a</span>:&#123;&#125;,</div><div class="line">    <span class="attr">b</span>:fucntion()&#123;&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>也可以动态的创建命名空间：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> MyApp=&#123;&#125;</div><div class="line">MyApp.namespace=<span class="function"><span class="keyword">function</span>(<span class="params">name</span>)</span>&#123;</div><div class="line">    <span class="keyword">var</span> parts=name.split(<span class="string">'.'</span>);</div><div class="line">    <span class="keyword">var</span> current=MyApp;</div><div class="line">    <span class="keyword">for</span>(key <span class="keyword">in</span> parts)&#123;</div><div class="line">        <span class="keyword">if</span>(!current[parts[key]])&#123;</div><div class="line">            current[parts[key]]=&#123;&#125;</div><div class="line">        &#125;</div><div class="line">        current = current[parts[key]];</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">MyApp.namespace(<span class="string">'event'</span>);</div><div class="line">MyApp.namespace(<span class="string">'dom.style'</span>);</div><div class="line"></div><div class="line"><span class="built_in">console</span>.dir(MyApp);</div><div class="line"></div><div class="line"><span class="comment">//以上代码等价于</span></div><div class="line"><span class="keyword">var</span> MyApp = &#123;</div><div class="line">    <span class="attr">event</span>:&#123;&#125;,</div><div class="line">    <span class="attr">dom</span>:&#123;</div><div class="line">        <span class="attr">style</span>:&#123;&#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>2.使用闭包封装私有变量</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> user=(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">var</span> _name=<span class="string">'xiaoming'</span>;</div><div class="line">    <span class="keyword">var</span> _age=<span class="number">29</span>;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">        <span class="attr">getUserInfo</span>:<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">            <span class="keyword">return</span> _name+<span class="string">'-'</span>+_age;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    &#125;)()</div></pre></td></tr></table></figure>
+<h2 id="惰性单例"><a href="#惰性单例" class="headerlink" title="惰性单例"></a>惰性单例</h2><p>惰性单例是指在需要的时候才创建实例。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> createInstance=(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">var</span> instance;</div><div class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="keyword">if</span>(instance)&#123;</div><div class="line">            <span class="keyword">return</span> instance;</div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">            instance=&#123;&#125;;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;)()</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">var</span> a=createInstance();</div><div class="line"><span class="keyword">var</span> b=createInstance();</div><div class="line"></div><div class="line"><span class="built_in">console</span>.log(a===b); <span class="comment">//true</span></div></pre></td></tr></table></figure>
+<h2 id="通用的惰性单例"><a href="#通用的惰性单例" class="headerlink" title="通用的惰性单例"></a>通用的惰性单例</h2><ul>
+<li>上面的代码是违反单一指责原则的，创建对象和管理单例的逻辑都放在createInstance对象内部</li>
+<li>如果我们下次需要创建instance2，那就必须得把 createInstance函数照抄一遍</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> createInstance=(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">var</span> instance2;</div><div class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="keyword">if</span>(instance2)&#123;</div><div class="line">            <span class="keyword">return</span> instance2;</div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">            instance2=&#123;&#125;;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;)()</div></pre></td></tr></table></figure>
+<p>我们把不变的部分隔离出来这个逻辑始终是一样的，用一个变量标志是否创建过对象，如果是，则下次直接返回这个已经创建好的对象。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> obj;</div><div class="line"><span class="keyword">if</span>(!obj)&#123;</div><div class="line">    obj=xxx;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们把管理单例的逻辑从代码中提出来，讲创建对象的方法当作参数动态传入getSingle函数中</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//管理单例</span></div><div class="line"><span class="keyword">var</span> getSingle=<span class="function"><span class="keyword">function</span>(<span class="params">func</span>)</span>&#123;</div><div class="line">    <span class="keyword">var</span> result;</div><div class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="keyword">return</span> result || (result=func.apply(<span class="keyword">this</span>,<span class="built_in">arguments</span>))</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//创建对象的方法</span></div><div class="line"><span class="keyword">var</span> createInstance=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">var</span> instance=<span class="built_in">Math</span>.random();</div><div class="line">    <span class="keyword">return</span> instance;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//如果我们直接调用createInstance 那么每次返回的随机数必然不同。</span></div><div class="line"><span class="built_in">console</span>.log(createInstance()===createInstance()) <span class="comment">//false</span></div><div class="line"></div><div class="line"><span class="comment">//如果我们使用getSingle管理创建对象的方法,那么每次返回的数值是一样的。这就完成了创建唯一实例对象的功能。</span></div><div class="line"><span class="keyword">var</span> createInstanceSignled=getSingle(createInstance);</div><div class="line"><span class="built_in">console</span>.log(createInstanceSignled()===createInstanceSignled()) <span class="comment">//true</span></div></pre></td></tr></table></figure>
+<p>这种单例的用途远远不止创建对象，比如我们要在页面创建一个弹窗，并且每次执行的时候不重复创建，我们可以去判断是否第一次创建，直接使用getSingle去管理创建弹窗的函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">var createLayer=function()&#123;</div><div class="line">    var layer=$(&apos;&lt;div/&gt;&apos;).appendTo(&apos;body&apos;);</div><div class="line">    return layer;</div><div class="line">&#125;</div><div class="line">var createLayerSignled=getSingle(createLayer);</div><div class="line"></div><div class="line">createLayerSignled();</div><div class="line">createLayerSignled();</div><div class="line">createLayerSignled();</div></pre></td></tr></table></figure>
+<p>我们可以看到，div只在页面创建了一次；</p>
+<p>具体的使用方法，大家可以去发散思维。单例模式是一种简单但非常实用的模式，特别是惰性单例技术，在合适的时候才创建对象，并且只创建唯一的一个。更奇妙的是，创建对象和管理单例的职责被分布在两个不同的方法中，这两个方法组合起来才具有单例模式的威力。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/设计模式/">设计模式</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/单例/">单例</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:nightbean.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/安装与部署/">安装与部署</a><small>1</small></li>
+  
+    <li><a href="/categories/插件-拓展/">插件&amp;拓展</a><small>1</small></li>
+  
+    <li><a href="/categories/算法/">算法</a><small>1</small></li>
+  
+    <li><a href="/categories/设计模式/">设计模式</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/HEXO/">HEXO</a><small>1</small></li>
+  
+    <li><a href="/tags/单例/">单例</a><small>1</small></li>
+  
+    <li><a href="/tags/拓展/">拓展</a><small>1</small></li>
+  
+    <li><a href="/tags/插件/">插件</a><small>1</small></li>
+  
+    <li><a href="/tags/算法/">算法</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2017 Li Xiang
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery-3.2.1.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+</body>
+</html>
